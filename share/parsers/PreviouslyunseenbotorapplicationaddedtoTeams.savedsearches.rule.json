@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Hunting Queries",
+                "displayName": "Previously unseen bot or application added to Teams",
+                "query": "// If you have more than 14 days worth of Teams data change this value\nlet data_date = 14d;\nlet historical_bots = (\nOfficeActivity\n| where TimeGenerated > ago(data_date)\n| where OfficeWorkload =~ \"MicrosoftTeams\"\n| where isnotempty(AddonName)\n| project AddonName);\nOfficeActivity\n| where TimeGenerated > ago(1d)\n| where OfficeWorkload =~ \"MicrosoftTeams\"\n// Look for add-ins we have never seen before\n| where AddonName in (historical_bots)\n| extend timestamp = TimeGenerated, AccountCustomEntity = UserId\n",
+                "tags": [
+                    {
+                        "name": "description",
+                        "value": "This hunting query helps identify new, and potentially unapproved applications or bots being added to Teams."
+                    },
+                    {
+                        "name": "tactics",
+                        "value": "Persistence,Collection"
+                    }
+                ],
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/microsoft teams hunting query 5')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

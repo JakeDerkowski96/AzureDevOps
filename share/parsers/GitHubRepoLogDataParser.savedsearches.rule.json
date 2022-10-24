@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Samples",
+                "displayName": "GitHub Repo Log Data Parser",
+                "query": "\n\nGitHubRepoLogs_CL\n| project TimeGenerated = columnifexists('DateTime_t', \"\"),\n    Organization=columnifexists('Organization_s', \"\"),\n    Repository=columnifexists('Repository_s',\"\"),\n    Action=columnifexists('LogType_s',\"\"),\n    Actor=coalesce(login_s, owner_login_s),\n    ActorType=coalesce(owner_type_s, type_s),\n    IsPrivate=columnifexists('private_b',\"\"),\n    ForksUrl=columnifexists('forks_url_s',\"\"),\n    PushedAt=columnifexists('pushed_at_t',\"\"),\n    IsDisabled=columnifexists('disabled_b',\"\"),\n    AdminPermissions=columnifexists('permissions_admin_b',\"\"),\n    PushPermissions=columnifexists('permissions_push_b',\"\"),\n    PullPermissions=columnifexists('permissions_pull_b',\"\"),\n    ForkCount=columnifexists('forks_count_d',\"\"),\n    Count=columnifexists('count_d,',\"\"),\n    UniqueUsersCount=columnifexists('uniques_d',\"\"),\n    DismmisedAt=columnifexists('dismissedAt_t',\"\"),\n    Reason=columnifexists('dismissReason_s',\"\"),\n    vulnerableManifestFilename = columnifexists('vulnerableManifestFilename_s',\"\"),\n    Description=columnifexists('securityAdvisory_description_s',\"\"),\n    Link=columnifexists('securityAdvisory_permalink_s',\"\"),\n    PublishedAt=columnifexists('securityAdvisory_publishedAt_t ',\"\"),\n    Severity=columnifexists('securityAdvisory_severity_s',\"\"),\n    Summary=columnifexists('securityAdvisory_summary_s',\"\")\n",
+                "functionAlias": "GitHubRepoLog",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/github repo log data parser')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

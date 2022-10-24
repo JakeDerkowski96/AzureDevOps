@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "SOCMetrics",
+                "displayName": "SOC_Score",
+                "query": "//Overall SOC Score\r\n\r\nSecurityIncident\r\n| where TimeGenerated > startofday(ago(90d))\r\n| extend email_ = tostring(Owner.email)\r\n| where ProviderName == \"Azure Sentinel\" // Commenting out this line provides SecurityIncidents from both Azure Sentinel and Microsoft 365 Defender Incidents.\r\n| summarize TimeGenerated = arg_max(TimeGenerated, Severity, Status, email_) by IncidentNumber\r\n| summarize Info_Value=count(Severity == \"Informational\" and Status != \"Closed\") * 2, Low_Value=count(Severity == \"Low\" and Status != \"Closed\") * 3, Medium_Value=count(Severity == \"Medium\" and Status != \"Closed\") * 4, High_Value=count(Severity == \"High\" and Status != \"Closed\") * 5, New_Count=count(TimeGenerated > ago(1d) and Status == \"New\"), Open_Count=count(TimeGenerated > ago(90d) and Status != \"Closed\"), Closed_Count=count(TimeGenerated > ago(90d) and Status == \"Closed\"), Unassigned_Count=count(TimeGenerated > ago(1d) and Status == \"New\" or Status == \"Active\" and isempty(email_))\r\n| project New_Count + Open_Count + Closed_Count + Unassigned_Count + Info_Value + Low_Value + Medium_Value + High_Value",
+                "functionAlias": "SOC_Score",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/b56a9472-d8f7-41e7-82bc-0a0acfce5a7e_soc_score')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

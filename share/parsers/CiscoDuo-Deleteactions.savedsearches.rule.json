@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Hunting Queries",
+                "displayName": "Cisco Duo - Delete actions",
+                "query": "CiscoDuo\n| where TimeGenerated > ago(24h)\n| where DvcAction in~ ('activation_delete_link', 'admin_activation_delete', 'admin_delete', 'azure_directory_delete', 'bypass_delete', 'delete_child_customer', 'directory_delete', 'feature_delete', 'group_delete', 'hardtoken_delete', 'integration_delete', 'phone_delete', 'policy_delete', 'u2ftoken_delete', 'user_delete')\n| project TimeGenerated, SrcIpAddr, DstUserName\n| extend AccountCustomEntity = SrcUserName, IPCustomEntity = SrcIpAddr\n",
+                "tags": [
+                    {
+                        "name": "description",
+                        "value": "Query searches for delete actions performed by admin users."
+                    },
+                    {
+                        "name": "tactics",
+                        "value": "Impact"
+                    }
+                ],
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/ciscoduosecurity hunting query 2')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

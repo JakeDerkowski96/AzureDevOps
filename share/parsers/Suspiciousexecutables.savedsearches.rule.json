@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "displayName": "Suspicious executables",
+                "category": "Security Warning Notable Issues",
+                "query": "SecurityEvent | where EventID == 8002 and Fqbn == '-' | summarize ExecutionCountHash=count() by FileHash | where ExecutionCountHash <= 5",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/Security(5q-loganalytics-sentinel)_SecurityWarningNotableIssues|SuspiciousExecutables')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Hunting Queries",
+                "displayName": "SUNBURST suspicious SolarWinds child processes",
+                "query": "\nlet excludeProcs = dynamic([@\"\\SolarWinds\\Orion\\APM\\APMServiceControl.exe\", @\"\\SolarWinds\\Orion\\ExportToPDFCmd.Exe\", @\"\\SolarWinds.Credentials\\SolarWinds.Credentials.Orion.WebApi.exe\", @\"\\SolarWinds\\Orion\\Topology\\SolarWinds.Orion.Topology.Calculator.exe\", @\"\\SolarWinds\\Orion\\Database-Maint.exe\", @\"\\SolarWinds.Orion.ApiPoller.Service\\SolarWinds.Orion.ApiPoller.Service.exe\", @\"\\Windows\\SysWOW64\\WerFault.exe\"]);\nDeviceProcessEvents\n| where InitiatingProcessFileName =~ \"solarwinds.businesslayerhost.exe\"\n| where not(FolderPath has_any (excludeProcs))\n| extend\n    timestamp = TimeGenerated,\n    AccountCustomEntity = iff(isnotempty(InitiatingProcessAccountUpn), InitiatingProcessAccountUpn, InitiatingProcessAccountName),\n    HostCustomEntity = DeviceName,\n    FileHashCustomEntity = MD5\n",
+                "tags": [
+                    {
+                        "name": "description",
+                        "value": "Identifies suspicious child processes of SolarWinds.Orion.Core.BusinessLayer.dll that may be evidence of the SUNBURST backdoor"
+                    },
+                    {
+                        "name": "tactics",
+                        "value": "Execution,Persistence"
+                    }
+                ],
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/microsoftdefenderforendpoint hunting query 2')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

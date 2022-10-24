@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Hunting Queries",
+                "displayName": "Cisco Duo - New users",
+                "query": "CiscoDuo\n| where TimeGenerated > ago(24h)\n| where DvcAction \"user_create\"\n| project TimeGenerated, SrcIpAddr, SrcUserName, DstUserName\n| extend AccountCustomEntity = SrcUserName, IPCustomEntity = SrcIpAddr\n",
+                "tags": [
+                    {
+                        "name": "description",
+                        "value": "Query searches for new users created."
+                    },
+                    {
+                        "name": "tactics",
+                        "value": "InitialAccess,Persistence"
+                    }
+                ],
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/ciscoduosecurity hunting query 8')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

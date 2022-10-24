@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Hunting Queries",
+                "displayName": "Cisco Duo - Admin failure authentications",
+                "query": "CiscoDuo\n| where TimeGenerated > ago(24h)\n| where DvcAction =~ \"admin_login_error\"\n| project TimeGenerated, SrcIpAddr, DstUserName\n| extend AccountCustomEntity = DstUserName, IPCustomEntity = SrcIpAddr\n",
+                "tags": [
+                    {
+                        "name": "description",
+                        "value": "Query searches admin failure authentication events."
+                    },
+                    {
+                        "name": "tactics",
+                        "value": "InitialAccess"
+                    }
+                ],
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/ciscoduosecurity hunting query 3')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

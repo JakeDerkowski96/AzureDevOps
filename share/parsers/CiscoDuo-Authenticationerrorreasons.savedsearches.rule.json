@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Hunting Queries",
+                "displayName": "Cisco Duo - Authentication error reasons",
+                "query": "CiscoDuo\n| where TimeGenerated > ago(24h)\n| where EventType =~ 'authentication'\n| where EventResult in~ ('denied', 'failure')\n| summarize count() by EventResultDetails, DstUserName\n| extend AccountCustomEntity = DstUserName\n",
+                "tags": [
+                    {
+                        "name": "description",
+                        "value": "Query searches for authentication error reasons."
+                    },
+                    {
+                        "name": "tactics",
+                        "value": "InitialAccess"
+                    }
+                ],
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/ciscoduosecurity hunting query 5')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

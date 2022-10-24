@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Hunting Queries",
+                "displayName": "User added to Team and immediately uploads file",
+                "query": "let timeframe = 7d;\nlet threshold = 1m;\nOfficeActivity\n| where TimeGenerated > ago(timeframe)\n| where OfficeWorkload =~ \"MicrosoftTeams\"\n| where Operation == \"MemberAdded\"\n| extend TeamName = iff(isempty(TeamName), Members[0].UPN, TeamName)\n| project TimeGenerated, UploaderID=UserId, TeamName\n| join (\n  OfficeActivity\n  | where TimeGenerated > ago(timeframe)\n  | where RecordType == \"SharePointFileOperation\"\n  | where SourceRelativeUrl has \"Microsoft Teams Chat Files\"\n  | where Operation == \"FileUploaded\"\n  | project UploadTime=TimeGenerated, UploaderID=UserId, FileLocation=OfficeObjectId, FileName=SourceFileName\n  ) on UploaderID\n| where UploadTime > TimeGenerated and UploadTime < TimeGenerated+threshold\n| project-away UploaderID1\n| extend timestamp=TimeGenerated, AccountCustomEntity = UploaderID \n",
+                "tags": [
+                    {
+                        "name": "description",
+                        "value": "This hunting queries identifies users who are added to a Team or Teams chat\nand within 1 minute of being added upload a file via the chat. This might be\nan indicator of suspicious activity."
+                    },
+                    {
+                        "name": "tactics",
+                        "value": "InitialAccess"
+                    }
+                ],
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/microsoft teams hunting query 7')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

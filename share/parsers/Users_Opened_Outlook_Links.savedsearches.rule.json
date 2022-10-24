@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Email",
+                "displayName": "Users_Opened_Outlook_Links",
+                "query": "DeviceEvents\r\n| where isnotempty(RemoteUrl)\r\n| where InitiatingProcessFileName has \"outlook\"\r\n| project RemoteUrl, DeviceName, InitiatingProcessAccountName, TimeGenerated\r\n| order by TimeGenerated desc",
+                "functionAlias": "Users_Opened_Outlook_Links",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/95a4095e-1e14-4fc6-b541-3ced7a0d45a4_users_opened_outlook_links')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

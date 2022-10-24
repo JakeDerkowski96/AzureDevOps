@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Samples",
+                "displayName": "GitHub Audit Log Data Parser",
+                "query": "\n\nGitHub_CL\n| project TimeGenerated=node_createdAt_t,\n    Organization=columnifexists('node_organizationName_s', \"\"),\n    Action=node_action_s,\n    OperationType=node_operationType_s,\n    Repository=columnifexists('node_repositoryName_s',\"\"),\n    Actor=columnifexists('node_actorLogin_s', \"\"),\n    IPaddress=columnifexists('node_actorIp_s', \"\"),\n    City=columnifexists('node_actorLocation_city_s', \"\"),\n    Country=columnifexists('node_actorLocation_country_s', \"\"),\n    ImpactedUser=columnifexists('node_userLogin_s', \"\"),\n    ImpactedUserEmail=columnifexists('node_user_email_s', \"\"),\n    InvitedUserPermission=columnifexists('node_permission_s', \"\"),\n    Visability=columnifexists('node_visibility_s', \"\"),\n    OauthApplication=columnifexists('node_oauthApplicationName_s', \"\"),\n    OauthApplicationUrl=columnifexists('node_applicationUrl_s', \"\"),\n    OauthApplicationState=columnifexists('node_state_s', \"\"),\n    UserCanInviteCollaborators=columnifexists('node_canInviteOutsideCollaboratorsToRepositories_b', \"\"),\n    MembershipType=columnifexists('node_membershipTypes_s', \"\"),\n    CurrentPermission=columnifexists('node_permission_s', \"\"),\n    PreviousPermission=columnifexists('node_permissionWas_s', \"\"),\n    TeamName=columnifexists('node_teamName_s', \"\"),\n    Reason=columnifexists('node_reason_s', \"\"),\n    BlockedUser=columnifexists('node_blockedUserName_s', \"\"),\n    CanCreateRepositories=columnifexists('canCreateRepositories_b', \"\")\n\n\n\n",
+                "functionAlias": "GitHubAuditLog",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/github audit log data parser')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

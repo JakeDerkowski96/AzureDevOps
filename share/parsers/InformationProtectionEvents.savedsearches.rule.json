@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "AIP",
+                "displayName": "InformationProtectionEvents",
+                "query": "InformationProtectionLogs_CL\r\n| where columnifexists('Operation_s','') !in ('Heartbeat','')\r\n| project Time = TimeGenerated,                                                 User = columnifexists('UserId_s',''),                                                ItemPath = columnifexists('ObjectId_s',''),                                                ItemName =  columnifexists('ObjectId_s',''),                                                Method = columnifexists('ActionSource_s',''),                                                Activity = columnifexists('Activity_s',''),                                                LabelName = columnifexists('LabelName_s',''),                                                LabelNameBefore = columnifexists('LabelNameBefore_s',''),                                                ProtectionType = columnifexists('ProtectionType_s',''),                                                ProtectionBefore = columnifexists('ProtectionBefore_g',''),                                                MachineName = columnifexists('MachineName_s',''),                                                Platform = columnifexists('Platform_s',''),                                                ApplicationName = columnifexists('ApplicationName_s',''),                                                TenantId = AadTenantId_g,                                                AzureApplicationId = columnifexists('ApplicationId_g',''),                                                ProcessName = columnifexists('ProcessName_s',''),                                                LabelId = columnifexists('LabelId_g',''),                                                IsProtected = columnifexists('Protected_b',false),                                                ProtectionOwner = columnifexists('ProtectionOwner_s',''),                                                TemplateId_g = columnifexists('TemplateId_g',''),                                                LabelIdBefore = columnifexists('LabelIdBefore_g',''),                                                InformationTypesAbove55 = columnifexists('InformationTypesAbove55_s','[]'),                                                InformationTypesAbove65 = columnifexists('InformationTypesAbove65_s','[]'),                                                InformationTypesAbove75 = columnifexists('InformationTypesAbove75_s','[]'),                                                InformationTypesAbove85 = columnifexists('InformationTypesAbove85_s','[]'),                                                InformationTypesAbove95 = columnifexists('InformationTypesAbove95_s','[]'),                                                InformationTypes = columnifexists('InformationTypes_s','[]'),                                                DiscoveredInformationTypes = columnifexists('DiscoveredInformationTypes_s','[]'),                                                ProtectedBefore = columnifexists('ProtectedBefore_b', false),                                                ProtectionOwnerBefore = columnifexists('ProtectionOwnerBefore_s',''),                                                UserJustification = columnifexists('UserJustification_s',''),                                                LastModifiedBy = columnifexists('LastModifiedBy_s',''),                                                LastModifiedDate_s = columnifexists('LastModifiedDate_s',''),                                                AipVersion = columnifexists('ProductVersion_s',''),                                                IpAddress = columnifexists('IPv4_s','')\r\n| extend ItemName =  iff(ApplicationName contains 'outlook',ItemName, replace(@'^.*[\\/]', '', ItemName))",
+                "functionAlias": "InformationProtectionEvents",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/7ef776a5-7df4-498f-aafc-a4a5920dce2e')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

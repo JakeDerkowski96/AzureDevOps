@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Hunting Queries",
+                "displayName": "Cisco Duo - Devices with vulnerable OS",
+                "query": "let os_latest = 'x.x.xxx'; //put the latest version of OS here before running the query\nCiscoDuo\n| where TimeGenerated > ago(24h)\n| where EventType =~ 'authentication'\n| where AccessDvcOsVersion != os_latest\n| project TimeGenerated, SrcIpAddr, DstUserName\n| extend AccountCustomEntity = DstUserName, IPCustomEntity = SrcIpAddr\n",
+                "tags": [
+                    {
+                        "name": "description",
+                        "value": "Query searches for devices with vulnerable OS."
+                    },
+                    {
+                        "name": "tactics",
+                        "value": "InitialAccess"
+                    }
+                ],
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/ciscoduosecurity hunting query 9')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

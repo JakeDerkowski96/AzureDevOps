@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Hunting Queries",
+                "displayName": "Network Connection to New External LDAP Server",
+                "query": "let starttime = todatetime('{{StartTimeISO}}');\nlet endtime = todatetime('{{EndTimeISO}}');\nlet lookback = starttime - 14d;\nlet legacy_ldap = (\nCommonSecurityLog\n| where TimeGenerated between(lookback..starttime)\n// Filter to LDAP connections only\n| where ApplicationProtocol =~ \"ldap\"\n// Check LDAP server is external\n| extend private =  ipv4_is_private(DestinationIP)\n| where private == false\n// Filter out events where network connection was blocked - change this to expand hunt\n| where DeviceAction has_any (\"allow\", \"accept\", \"allowed\")\n| summarize by DestinationIP);\nCommonSecurityLog\n| where TimeGenerated between(starttime..endtime)\n| where ApplicationProtocol =~ \"ldap\"\n| extend private =  ipv4_is_private(DestinationIP)\n| where private == false\n| where DestinationIP !in (legacy_ldap)\n| where DeviceAction has_any (\"allow\", \"accept\", \"allowed\")\n| extend timestamp = TimeGenerated\n| project-reorder TimeGenerated, SourceIP, DestinationIP, ApplicationProtocol, DestinationPort, SentBytes, ReceivedBytes, DeviceAction\n",
+                "tags": [
+                    {
+                        "name": "description",
+                        "value": "This hunting query looks for outbound network connections using the LDAP protocol to external IP addresses, where that IP address has not had an LDAP network connection to it in the 14 days preceding the query timeframe."
+                    },
+                    {
+                        "name": "tactics",
+                        "value": "InitialAccess"
+                    }
+                ],
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/apache log4j vulnerability detection hunting query 10')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

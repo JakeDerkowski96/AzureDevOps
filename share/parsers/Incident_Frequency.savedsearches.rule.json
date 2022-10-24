@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Incidents",
+                "displayName": "Incident_Frequency",
+                "query": "SecurityIncident \n| where TimeGenerated >= ago(7d)\n| summarize count() by Title \n| sort by count_",
+                "functionAlias": "Incident_Frequency",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/9c205ffb-0b3f-4632-9917-ee658198d5f5_incident_frequency')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Hunting Queries",
+                "displayName": "Multiple Teams deleted by a single user",
+                "query": "// Adjust this value to change how many Teams should be deleted before including\nlet max_delete = 3;\n// Adjust this value to change the timewindow the query runs over\nlet time_window = 1d;\nlet deleting_users = (\nOfficeActivity\n| where TimeGenerated > ago(time_window)\n| where OfficeWorkload =~ \"MicrosoftTeams\"\n| where Operation =~ \"TeamDeleted\"\n| summarize count() by UserId\n| where count_ > max_delete\n| project UserId);\nOfficeActivity\n| where TimeGenerated > ago(time_window)\n| where OfficeWorkload =~ \"MicrosoftTeams\"\n| where Operation =~ \"TeamDeleted\"\n| where UserId in (deleting_users)\n// Uncomment the following line to map query entities is you plan to use this as a detection query\n//| extend timestamp = TimeGenerated, AccountCustomEntity = UserId\n",
+                "tags": [
+                    {
+                        "name": "description",
+                        "value": "This hunting query identifies where multiple Teams have been deleted by a single user in a short timeframe."
+                    },
+                    {
+                        "name": "tactics",
+                        "value": "Impact"
+                    }
+                ],
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/microsoft teams hunting query 2')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}
